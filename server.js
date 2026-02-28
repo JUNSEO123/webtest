@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'gojunseoooo@gmail.com',
-        pass: '주니님의_앱_비밀번호' // 클라우드 서버에서 직접 수정 필요!
+        pass: 'bcxoymbqmpbqmfee' // 클라우드 서버에서 직접 수정 필요!
     }
 });
 
