@@ -10,8 +10,8 @@ const PORT = 8080;
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'gojunseoooo@gmail.com', // 주니님 이메일
-        pass: '주니님의_앱_비밀번호' // 발급받은 16자리 앱 비밀번호 (공백 없이 입력)
+        user: 'gojunseoooo@gmail.com',
+        pass: '주니님의_앱_비밀번호' // 클라우드 서버에서 직접 수정 필요!
     }
 });
 
@@ -23,26 +23,30 @@ const server = http.createServer((req, res) => {
         let body = '';
         req.on('data', chunk => body += chunk.toString());
         req.on('end', () => {
-            const { name, email, message } = JSON.parse(body);
+            try {
+                const { name, email, message } = JSON.parse(body);
+                const mailOptions = {
+                    from: email,
+                    to: 'gojunseoooo@gmail.com',
+                    subject: `[문의] ${name}님으로부터 새로운 문의가 도착했습니다.`,
+                    text: `성함: ${name}\n이메일: ${email}\n내용:\n${message}`
+                };
 
-            const mailOptions = {
-                from: email,
-                to: 'gojunseoooo@gmail.com', // 받는 이메일
-                subject: `[문의] ${name}님으로부터 새로운 문의가 도착했습니다.`,
-                text: `성함: ${name}\n이메일: ${email}\n내용:\n${message}`
-            };
-
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    console.error('메일 전송 실패:', error);
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ success: false, error: error.message }));
-                } else {
-                    console.log('메일 전송 성공:', info.response);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ success: true }));
-                }
-            });
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.error('메일 전송 실패:', error);
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ success: false, error: error.message }));
+                    } else {
+                        console.log('메일 전송 성공:', info.response);
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ success: true }));
+                    }
+                });
+            } catch (e) {
+                res.writeHead(400);
+                res.end('Invalid JSON');
+            }
         });
         return;
     }
